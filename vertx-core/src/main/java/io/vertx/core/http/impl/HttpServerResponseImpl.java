@@ -411,6 +411,10 @@ public class HttpServerResponseImpl implements HttpServerResponseInternal {
   }
 
   private WriteResult write_(Buffer chunk, boolean end) {
+    // RFC 9110, section 9.3.2: a response to HEAD must not include content
+    if (requestMethod == HttpMethod.HEAD) {
+      chunk = null;
+    }
     Handler<Void> headersEndHandler;
     synchronized (conn) {
       if (ended) {

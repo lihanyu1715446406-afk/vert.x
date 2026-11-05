@@ -109,6 +109,16 @@ public class Http2Test extends HttpTest {
   }
 
   @Test
+  public void testHeadResponseHasNoBody() throws Exception {
+    server.requestHandler(req -> req.response().end("hello"));
+    startServer(testAddress);
+    Buffer body = client.request(new RequestOptions(requestOptions).setMethod(HttpMethod.HEAD))
+      .compose(req -> req.send().compose(HttpClientResponse::body))
+      .await();
+    assertEquals(0, body.length());
+  }
+
+  @Test
   public void testServerResponseEndFromOtherThread() throws Exception {
     server.requestHandler(req -> {
       runAsync(() -> {
